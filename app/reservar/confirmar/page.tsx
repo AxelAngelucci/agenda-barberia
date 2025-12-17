@@ -53,7 +53,7 @@ export default function ConfirmarPage() {
   }, [router]);
 
   const handleConfirm = async () => {
-    if (!user || !reserva) return;
+    if (!user || !reserva || !barberiaData) return;
 
     setIsConfirming(true);
     setError("");

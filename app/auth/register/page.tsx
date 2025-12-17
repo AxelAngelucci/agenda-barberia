@@ -1,23 +1,29 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { createClient } from '@/lib/supabase/client-browser';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { createClient } from "@/lib/supabase/client-browser";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    nombre: '',
-    apellido: '',
-    celular: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
+    nombre: "",
+    apellido: "",
+    celular: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -26,33 +32,33 @@ export default function RegisterPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es requerido';
+      newErrors.nombre = "El nombre es requerido";
     }
 
     if (!formData.apellido.trim()) {
-      newErrors.apellido = 'El apellido es requerido';
+      newErrors.apellido = "El apellido es requerido";
     }
 
     if (!formData.celular.trim()) {
-      newErrors.celular = 'El celular es requerido';
-    } else if (!/^\d{10}$/.test(formData.celular.replace(/\s/g, ''))) {
-      newErrors.celular = 'Ingrese un número válido de 10 dígitos';
+      newErrors.celular = "El celular es requerido";
+    } else if (!/^\d{10}$/.test(formData.celular.replace(/\s/g, ""))) {
+      newErrors.celular = "Ingrese un número válido de 10 dígitos";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'El email es requerido';
+      newErrors.email = "El email es requerido";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Ingrese un email válido';
+      newErrors.email = "Ingrese un email válido";
     }
 
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
+      newErrors.password = "La contraseña es requerida";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+      newErrors.confirmPassword = "Las contraseñas no coinciden";
     }
 
     setErrors(newErrors);
@@ -79,8 +85,8 @@ export default function RegisterPage() {
             nombre: formData.nombre,
             apellido: formData.apellido,
             celular: formData.celular,
-          }
-        }
+          },
+        },
       });
 
       if (authError) {
@@ -90,30 +96,28 @@ export default function RegisterPage() {
       }
 
       if (!authData.user) {
-        setErrors({ email: 'Error al crear usuario' });
+        setErrors({ email: "Error al crear usuario" });
         setIsLoading(false);
         return;
       }
 
       // Crear registro en tabla usuarios
-      const { error: dbError } = await supabase
-        .from('usuarios')
-        .insert({
-          id: authData.user.id,
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          celular: formData.celular,
-        });
+      const { error: dbError } = await supabase.from("usuarios").insert({
+        id: authData.user.id,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        celular: formData.celular,
+      } as any);
 
       if (dbError) {
-        console.error('Error al crear usuario en DB:', dbError);
+        console.error("Error al crear usuario en DB:", dbError);
       }
 
-      router.push('/reservar');
+      router.push("/reservar");
       router.refresh();
     } catch (error) {
-      console.error('Error en registro:', error);
-      setErrors({ email: 'Error al conectar con el servidor' });
+      console.error("Error en registro:", error);
+      setErrors({ email: "Error al conectar con el servidor" });
       setIsLoading(false);
     }
   };
@@ -135,13 +139,17 @@ export default function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="nombre" className="text-gray-200">Nombre</Label>
+              <Label htmlFor="nombre" className="text-gray-200">
+                Nombre
+              </Label>
               <Input
                 id="nombre"
                 type="text"
                 placeholder="Tu nombre"
                 value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, nombre: e.target.value })
+                }
                 className="h-12 border-purple-500/30 focus:border-purple-500"
               />
               {errors.nombre && (
@@ -150,13 +158,17 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="apellido" className="text-gray-200">Apellido</Label>
+              <Label htmlFor="apellido" className="text-gray-200">
+                Apellido
+              </Label>
               <Input
                 id="apellido"
                 type="text"
                 placeholder="Tu apellido"
                 value={formData.apellido}
-                onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, apellido: e.target.value })
+                }
                 className="h-12 border-purple-500/30 focus:border-purple-500"
               />
               {errors.apellido && (
@@ -165,13 +177,17 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="celular" className="text-gray-200">Celular</Label>
+              <Label htmlFor="celular" className="text-gray-200">
+                Celular
+              </Label>
               <Input
                 id="celular"
                 type="tel"
                 placeholder="1234567890"
                 value={formData.celular}
-                onChange={(e) => setFormData({ ...formData, celular: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, celular: e.target.value })
+                }
                 className="h-12 border-purple-500/30 focus:border-purple-500"
               />
               {errors.celular && (
@@ -180,13 +196,17 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-200">Email</Label>
+              <Label htmlFor="email" className="text-gray-200">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="tu@email.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 className="h-12 border-purple-500/30 focus:border-purple-500"
               />
               {errors.email && (
@@ -195,13 +215,17 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-200">Contraseña</Label>
+              <Label htmlFor="password" className="text-gray-200">
+                Contraseña
+              </Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="Mínimo 6 caracteres"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 className="h-12 border-purple-500/30 focus:border-purple-500"
               />
               {errors.password && (
@@ -210,13 +234,17 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-gray-200">Confirmar Contraseña</Label>
+              <Label htmlFor="confirmPassword" className="text-gray-200">
+                Confirmar Contraseña
+              </Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 placeholder="Repite tu contraseña"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
                 className="h-12 border-purple-500/30 focus:border-purple-500"
               />
               {errors.confirmPassword && (
@@ -229,12 +257,16 @@ export default function RegisterPage() {
               disabled={isLoading}
               className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg disabled:opacity-50"
             >
-              {isLoading ? 'Registrando...' : 'Crear Cuenta'}
+              {isLoading ? "Registrando..." : "Crear Cuenta"}
             </Button>
 
             <div className="text-center text-gray-400">
-              <p>¿Ya tienes cuenta?{' '}
-                <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 font-semibold">
+              <p>
+                ¿Ya tienes cuenta?{" "}
+                <Link
+                  href="/auth/login"
+                  className="text-purple-400 hover:text-purple-300 font-semibold"
+                >
                   Inicia sesión
                 </Link>
               </p>

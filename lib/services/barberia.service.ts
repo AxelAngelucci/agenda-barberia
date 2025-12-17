@@ -16,11 +16,11 @@ export async function getBarberia(): Promise<Barberia | null> {
       return null;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = (await supabase
       .from("barberias")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (error || !data) {
       console.error("Error al obtener barbería:", error);
@@ -116,8 +116,7 @@ export async function updateBarberia(
     console.log("💾 Actualizando barbería con datos:", updateData);
     console.log("🔑 Usuario autenticado ID:", user.id);
 
-    const { data: result, error } = await supabase
-      .from("barberias")
+    const { data: result, error } = await (supabase.from("barberias") as any)
       .update(updateData)
       .eq("id", user.id)
       .select();

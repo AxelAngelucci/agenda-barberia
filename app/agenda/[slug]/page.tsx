@@ -103,11 +103,13 @@ export default function AgendaPublicaPage() {
       const supabase = createClient();
 
       // Obtener turnos ocupados
-      const { data: turnos } = await supabase
+      const { data: turnos } = (await supabase
         .from("turnos")
         .select("hora")
         .eq("barberia_id", barberia.id)
-        .eq("fecha", selectedDate.toISOString().split("T")[0]);
+        .eq("fecha", selectedDate.toISOString().split("T")[0])) as {
+        data: { hora: string }[] | null;
+      };
 
       const ocupados = turnos?.map((t) => t.hora.substring(0, 5)) || [];
       const disponibles = barberia.horarios_disponibles.filter(
@@ -179,24 +181,24 @@ export default function AgendaPublicaPage() {
 
       // 1. Crear o buscar usuario
       let userId: string;
-      const { data: existingUser } = await supabase
+      const { data: existingUser } = (await supabase
         .from("usuarios")
         .select("id")
         .eq("celular", userData.celular)
-        .single();
+        .single()) as { data: { id: string } | null };
 
       if (existingUser) {
         userId = existingUser.id;
       } else {
-        const { data: newUser, error: userError } = await supabase
+        const { data: newUser, error: userError } = (await supabase
           .from("usuarios")
           .insert({
             nombre: userData.nombre,
             apellido: userData.apellido,
             celular: userData.celular,
-          })
+          } as any)
           .select("id")
-          .single();
+          .single()) as { data: { id: string } | null; error: any };
 
         if (userError || !newUser) {
           throw new Error("Error al registrar usuario");
@@ -213,7 +215,7 @@ export default function AgendaPublicaPage() {
         servicio: serviciosSeleccionados.join(","),
         confirmado: true,
         recordatorio_enviado: false,
-      });
+      } as any);
 
       if (turnoError) {
         if (turnoError.code === "23505") {

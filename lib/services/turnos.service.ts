@@ -35,8 +35,7 @@ export async function createTurno(turnoData: {
       servicio: turnoData.servicio,
     });
 
-    const resultado = await supabase
-      .from("turnos")
+    const resultado = await (supabase.from("turnos") as any)
       .insert([
         {
           user_id: turnoData.userId,
@@ -137,23 +136,21 @@ export async function createTurno(turnoData: {
 export async function getHorariosDisponibles(fecha: Date): Promise<string[]> {
   try {
     // Obtener horarios de la configuración
-    const { data: barberia } = await supabase
-      .from("barberia")
+    const { data: barberia } = await (supabase.from("barberia") as any)
       .select("horarios_disponibles")
       .single();
 
     const todosLosHorarios = barberia?.horarios_disponibles || [];
 
     // Obtener turnos ya reservados para esa fecha
-    const { data: turnosOcupados } = await supabase
-      .from("turnos")
+    const { data: turnosOcupados } = await (supabase.from("turnos") as any)
       .select("hora")
       .eq("fecha", fecha.toISOString().split("T")[0]);
 
-    const horasOcupadas = turnosOcupados?.map((t) => t.hora) || [];
+    const horasOcupadas = turnosOcupados?.map((t: any) => t.hora) || [];
 
     // Filtrar horarios disponibles
-    return todosLosHorarios.filter((h) => !horasOcupadas.includes(h));
+    return todosLosHorarios.filter((h: string) => !horasOcupadas.includes(h));
   } catch (error) {
     console.error("Error al obtener horarios disponibles:", error);
     return [];
@@ -170,24 +167,22 @@ export async function getTodosLosHorarios(fecha: Date): Promise<{
 }> {
   try {
     // Obtener horarios de la configuración
-    const { data: barberia } = await supabase
-      .from("barberia")
+    const { data: barberia } = await (supabase.from("barberia") as any)
       .select("horarios_disponibles")
       .single();
 
     const todosLosHorarios = barberia?.horarios_disponibles || [];
 
     // Obtener turnos ya reservados para esa fecha
-    const { data: turnosOcupados } = await supabase
-      .from("turnos")
+    const { data: turnosOcupados } = await (supabase.from("turnos") as any)
       .select("hora")
       .eq("fecha", fecha.toISOString().split("T")[0]);
 
     // Normalizar formato de horas (quitar segundos si vienen)
     const horasOcupadas =
-      turnosOcupados?.map((t) => t.hora.substring(0, 5)) || [];
+      turnosOcupados?.map((t: any) => t.hora.substring(0, 5)) || [];
     const horasDisponibles = todosLosHorarios.filter(
-      (h) => !horasOcupadas.includes(h),
+      (h: string) => !horasOcupadas.includes(h),
     );
 
     return {
@@ -210,8 +205,7 @@ export async function getTodosLosHorarios(fecha: Date): Promise<{
  */
 export async function getTurnosCompletos(): Promise<TurnoCompleto[]> {
   try {
-    const { data, error } = await supabase
-      .from("turnos_completos")
+    const { data, error } = await (supabase.from("turnos_completos") as any)
       .select("*")
       .order("fecha", { ascending: false })
       .order("hora", { ascending: false });
@@ -221,7 +215,7 @@ export async function getTurnosCompletos(): Promise<TurnoCompleto[]> {
       return [];
     }
 
-    return data.map((t) => ({
+    return data.map((t: any) => ({
       id: t.id,
       fecha: new Date(t.fecha),
       hora: t.hora.substring(0, 5),
@@ -248,8 +242,7 @@ export async function getTurnosHoy(): Promise<TurnoCompleto[]> {
   try {
     const hoy = new Date().toISOString().split("T")[0];
 
-    const { data, error } = await supabase
-      .from("turnos_completos")
+    const { data, error } = await (supabase.from("turnos_completos") as any)
       .select("*")
       .eq("fecha", hoy)
       .order("hora", { ascending: true });
@@ -259,7 +252,7 @@ export async function getTurnosHoy(): Promise<TurnoCompleto[]> {
       return [];
     }
 
-    return data.map((t) => ({
+    return data.map((t: any) => ({
       id: t.id,
       fecha: new Date(t.fecha),
       hora: t.hora.substring(0, 5),
@@ -288,8 +281,7 @@ export async function getTurnosProximos(): Promise<TurnoCompleto[]> {
     const en7Dias = new Date();
     en7Dias.setDate(en7Dias.getDate() + 7);
 
-    const { data, error } = await supabase
-      .from("turnos_completos")
+    const { data, error } = await (supabase.from("turnos_completos") as any)
       .select("*")
       .gte("fecha", hoy.toISOString().split("T")[0])
       .lte("fecha", en7Dias.toISOString().split("T")[0])
@@ -301,7 +293,7 @@ export async function getTurnosProximos(): Promise<TurnoCompleto[]> {
       return [];
     }
 
-    return data.map((t) => ({
+    return data.map((t: any) => ({
       id: t.id,
       fecha: new Date(t.fecha),
       hora: t.hora.substring(0, 5),
@@ -328,8 +320,7 @@ export async function marcarRecordatorioEnviado(
   turnoId: string,
 ): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from("turnos")
+    const { error } = await (supabase.from("turnos") as any)
       .update({ recordatorio_enviado: true })
       .eq("id", turnoId);
 
@@ -350,7 +341,9 @@ export async function marcarRecordatorioEnviado(
  */
 export async function cancelarTurno(turnoId: string): Promise<boolean> {
   try {
-    const { error } = await supabase.from("turnos").delete().eq("id", turnoId);
+    const { error } = await (supabase.from("turnos") as any)
+      .delete()
+      .eq("id", turnoId);
 
     if (error) {
       console.error("Error al cancelar turno:", error);
