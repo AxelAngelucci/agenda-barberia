@@ -1,5 +1,5 @@
 import { supabase } from "../supabase/client";
-import { Turno } from "../types";
+import { Turno, TipoServicio } from "../types";
 
 export interface TurnoCompleto {
   id: string;
@@ -77,7 +77,7 @@ export async function createTurno(turnoData: {
         json: (() => {
           try {
             return JSON.stringify(error, null, 2);
-          } catch (e) {
+          } catch {
             return "No se pudo serializar";
           }
         })(),
@@ -120,7 +120,7 @@ export async function createTurno(turnoData: {
       barberiaId: data.barberia_id,
       fecha: new Date(data.fecha),
       hora: data.hora,
-      servicio: data.servicio as any,
+      servicio: data.servicio as TipoServicio,
       confirmado: data.confirmado,
       recordatorioEnviado: data.recordatorio_enviado,
       createdAt: new Date(data.created_at),
